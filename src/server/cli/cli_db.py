@@ -17,6 +17,10 @@ def handle_test():
 def handle_search():
 	files_db.string_search_db()
 
-@db_bp.cli.command("search2")
-def handle_search2():
-	files_db.string_search_file()
+@db_bp.cli.command("update")
+def handle_update():
+	files_db.update_db()
+
+@db_bp.cli.command("delete")
+def handle_delete():
+	files_db.delete_all_from_db()
