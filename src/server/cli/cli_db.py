@@ -24,3 +24,7 @@ def handle_update():
 @db_bp.cli.command("delete")
 def handle_delete():
 	files_db.delete_all_from_db()
+
+@db_bp.cli.command("mp3")
+def handle_mp3():
+	files_db.get_mp3_under_dir("/Library")
