@@ -2,15 +2,18 @@ import os
 from uuid import uuid4
 import time
 
-from dblayer.models import db, File
+from .models import db, File
+from . import ignore
 
-#ROOT_FOLDER = "/Users/sidrachabathuni/Projects/lm-server/songs"
-ROOT_FOLDER = "/Users/sidrachabathuni/Projects"
+ROOT_FOLDER = "/Users/sidrachabathuni/Projects/lm-server/songs"
+#ROOT_FOLDER = "/Users/sidrachabathuni/Projects"
 
 def populate_db():
 	root = ROOT_FOLDER
 	for path, dirs, files in os.walk(root):
 		for file in files:
+			if ignore.check(file) == 0:
+				continue
 			id = str(uuid4())
 			rel_path = os.path.relpath(path, root)
 			if rel_path == ".":
@@ -87,16 +90,17 @@ def update_db():
 		if os.path.exists(abs_path) == False:
 			File.query.filter_by(path=file.path).delete()
 			print(f"deleted {file.name}")
+			print(file.path)
 			print(f"-------{start_time-time.time()}------")
 	
 	db.session.commit()
 	print("done!")
+
+def repopulate():
+	delete_all_from_db()
+	populate_db()
 				
 def delete_all_from_db():
-	print("are you sure you want to delete the database?(y/n)")
-	inpt = input("> ")
-	if inpt != "y":
-		return
 	File.query.delete()
 	try:
 		db.session.commit()
@@ -124,7 +128,7 @@ def get_mp3_under_dir(directory): #directory is relative path
 	return fls
 
 
-def get_contents(directory): #relative path
+def get_contents(directory, limit: int, offset: int): #relative path
 	if len(directory) != 0:
 		if directory[0] == "/":
 			directory = directory[1:]
@@ -132,24 +136,29 @@ def get_contents(directory): #relative path
 	root = ROOT_FOLDER
 	contents = []
 	print("directory", directory)
+	total = 0
 	for x in os.listdir(os.path.join(root, directory)):
+		if ignore.check(x) == 0:
+			continue
 		abs_path = os.path.join(root, directory, x)
 		rel_path = os.path.relpath(abs_path, root)
 
 		if os.path.isdir(abs_path):
-			content_obj = {"name": x, "type": "directory"}
+			type = "directory"
 		else:
-			content_obj = {"name": x, "type": "file"}
+			if x.endswith(".mp3"):
+				type = "mp3"
+			else:
+				type = "file"
+				
+		content_obj = {"name": x, "type": type}
+
 		
 		contents.append(content_obj)
-		#file = File.query.filter_by(path=rel_path).first()
-		#try:
-			#content_obj = {"id": file.id, "path": file.path, "type": file.type}
-			#contents.append(content_obj)
-		#except:
-			#continue
+		total += 1
+
 	print(f"------{start_time-time.time()} seconds------")
-	return contents
+	return contents[offset:limit+offset], total
 
 def test():
 	start_time = time.time()
@@ -159,3 +168,11 @@ def test():
 		print(file.name)
 	
 	print(f"------{start_time-time.time()} seconds------")
+
+
+def get_abs_path(rel_path):
+	root = ROOT_FOLDER
+	if rel_path[0] == "/":
+		rel_path = rel_path[1:]
+	
+	return os.path.join(root, rel_path)

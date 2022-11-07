@@ -1,19 +1,19 @@
 import os
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_file
 
 app = Flask(__name__, template_folder="../client/templates", static_folder="../client/static")
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///../../../files.sqlite3"
 
-from dblayer.models import db
+from main.models import db
 db.init_app(app)
 with app.app_context():
 	db.create_all()
 
-from cli.cli_db import db_bp
+from cli.main_cli import db_bp
 app.register_blueprint(db_bp)
 
-from dblayer import files_db
+from main import files
 
 @app.route("/")
 def handle_home():
@@ -26,13 +26,20 @@ def handle_sub():
 	path = args["path"]
 	if path == "/":
 		path = ""
-	contents = files_db.get_contents(path)
-	return jsonify({"contents": contents})
+	contents, total = files.get_contents(path, int(args["limit"]), int(args["offset"]))
+	return jsonify({"contents": contents, "total": total})
 
+#test_path = "/Users/sidrachabathuni/Projects/lm-server/songs/english/britney/Britney Spears - Toxic (Official HD Video).mp3"
+@app.route("/mp3")
+def handle_mp3():
+	args = request.args
+	path = args["path"]
+	abs_path = files.get_abs_path(path)
+	return send_file(abs_path)
 
 @app.route("/test")
 def handle_test():
-	files_db.test()
+	files.test()
 	return "done"
 
 if __name__ == "__main__":

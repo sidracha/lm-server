@@ -5,13 +5,18 @@
 	<head>
 		<script src="../static/index.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+		<link href="../static/index.css" rel="stylesheet">
 
 		<script>
 
 			$(document).ready(function () {
 
-				index.handle_click();
-
+				index.on_initial();
+				//index.handle_anchor_click();
+				index.handle_back_button_click();
+				index.handle_next_page_button_click();
+				index.handle_previous_page_button_click();
+				index.handle_contents_div_click();
 			})
 
 		</script>
@@ -19,7 +24,28 @@
 
 
 	<body>
-		<button id="test">Test</button>
+		<div id="music-player-div" hidden>
+			<p id="audio-name"></p>
+			<audio id="mp3-audio" controls>
+				<source src="" type="audio/mpeg">
+			</audio>
+		</div>
+
+		<div id="back-button-div">
+			<button id="back-button">Back</button>
+		</div>
+
+		<div id="contents-div">
+
+		</div>
+		<div id="nav-cluster">
+			<button id="previous-page-button"><--</button>
+			<button id="next-page-button">--></button>
+		</div>
+		<div id="page-cluster">
+			<p id="page-num"></p>
+		</div>
+
 
 
 	</body>
