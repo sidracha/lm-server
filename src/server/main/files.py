@@ -5,8 +5,7 @@ import time
 from .models import db, File
 from . import ignore
 
-ROOT_FOLDER = "/Users/sidrachabathuni/Projects/lm-server/songs"
-#ROOT_FOLDER = "/Users/sidrachabathuni/Projects"
+ROOT_FOLDER = os.getenv("ROOT_FOLDER")
 
 def populate_db():
 	root = ROOT_FOLDER

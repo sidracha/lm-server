@@ -4,9 +4,6 @@
 	vertical-align: middle;
 }
 
-#contents-div {
-	padding-left: 600px;
-}
 
 .play-button {
 	width: 40px;
@@ -15,7 +12,38 @@
 	padding-left: 10px;
 }
 
-.play-button:active {
-
+[group="media"] {
+	color: black;
+	text-decoration: none;
 }
 
+#close-player-button {
+	width: 20px;
+	height: 20px;
+	vertical-align: top;
+}
+
+#mp3-audio {
+	width: 600px;
+}
+
+#contents-div {
+	position: relative;
+	left: 39%;
+	width: 800px;
+}
+
+#nav-cluster {
+	padding-top: 10px;
+	left: 40%;
+	position: relative;
+}
+
+#music-player-div {
+	padding-bottom: 50px;
+	text-align: center;
+}
+
+.anchor-element-div {
+	padding-bottom: 20px
+}

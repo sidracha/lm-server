@@ -62,11 +62,18 @@ var index = {
 		const anchor_element = $("<div>", {
 			class: "anchor-element-div"
 		})
+		let group;
+		if (type === "mp3") {
+			group = "media"
+		} else {
+			group = "file"
+		}
 		const anchor = $("<a>", {
 			"name": name,
 			"class": "content",
 			"href": "javascript: void(0)",
-			"type": type
+			"type": type,
+			"group": group
 		})
 		let source;
 		let ismedia = false;
@@ -190,6 +197,16 @@ var index = {
 				$("#mp3-audio").attr("src", path);
 				$("#audio-name").html(index.parse_file_name(e.target.getAttribute("data-id")));
 				$("#mp3-audio")[0].play()
+			}
+		}
+	},
+
+	handle_music_player_div_click: function () {
+		$("#music-player-div")[0].onclick = function (e) {
+			const target = e.target;
+			if (target.id === "close-player-button") {
+				$("#mp3-audio")[0].pause()
+				$("#music-player-div").attr("hidden", "true")
 			}
 		}
 	}
