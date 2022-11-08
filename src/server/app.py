@@ -10,10 +10,11 @@ db.init_app(app)
 with app.app_context():
 	db.create_all()
 
-from cli.main_cli import db_bp
+from cli.db_cli import db_bp
 app.register_blueprint(db_bp)
 
 from main import files
+from main import search
 
 @app.route("/")
 def handle_home():
@@ -41,6 +42,20 @@ def handle_mp3():
 def handle_test():
 	files.test()
 	return "done"
+
+@app.route("/search")
+def handle_search():
+	args = request.args
+	q = args["query"]
+	files = search.search(q)
+	return jsonify({"result": files})
+
+
+@app.route("/icon/<icon>")
+def handle_get_icon(icon):
+	filename = icon + ".png"
+	file_path = "../client/static/icons/" + filename
+	return send_file(file_path)
 
 if __name__ == "__main__":
 	app.run()

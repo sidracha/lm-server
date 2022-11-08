@@ -1,9 +1,13 @@
-from importlib.metadata import files
 from flask import Blueprint
 
 from main import files
 
 db_bp = Blueprint("db", __name__)
+
+
+@db_bp.cli.command("setup")
+def handle_setup():
+	print("hello, world")
 
 @db_bp.cli.command("populate")
 def handle_populate():

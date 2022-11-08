@@ -1,22 +1,16 @@
 .type-icon {
-	width: 50px;
-	height: 50px;
-	vertical-align: middle;
-}
-
-
-.play-button {
 	width: 40px;
 	height: 40px;
 	vertical-align: middle;
-	padding-left: 10px;
+	padding-right: 10px;
+	padding-right: 20px
 }
 
-[group="media"] {
-	color: black;
+
+.media-anchor {
 	text-decoration: none;
+	color: black;
 }
-
 #close-player-button {
 	width: 20px;
 	height: 20px;
@@ -29,13 +23,13 @@
 
 #contents-div {
 	position: relative;
-	left: 39%;
+	left: 35%;
 	width: 800px;
 }
 
 #nav-cluster {
 	padding-top: 10px;
-	left: 40%;
+	left: 38%;
 	position: relative;
 }
 
@@ -46,4 +40,21 @@
 
 .anchor-element-div {
 	padding-bottom: 20px
+}
+
+#back-button {
+	width: 40px;
+	height: 40px;
+}
+
+
+.play-button {
+	width: 30px;
+	height: 30px;
+	vertical-align: middle;
+	padding-left: 20px;
+}
+
+.content-anchor {
+	font-size: 18px;
 }

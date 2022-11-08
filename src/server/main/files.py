@@ -1,26 +1,33 @@
 import os
 from uuid import uuid4
 import time
+import hashlib
 
 from .models import db, File
-from . import ignore
+from . import vfy
 
-ROOT_FOLDER = os.getenv("ROOT_FOLDER")
+#ROOT_FOLDER = os.getenv("ROOT_FOLDER")
+ROOT_FOLDER = "/Users/sidrachabathuni/"
+
 
 def populate_db():
 	root = ROOT_FOLDER
+	count = 0
 	for path, dirs, files in os.walk(root):
 		for file in files:
-			if ignore.check(file) == 0:
+			count += 1
+			if vfy.ignore(file) == 0:
 				continue
-			id = str(uuid4())
 			rel_path = os.path.relpath(path, root)
 			if rel_path == ".":
 				rel_path = ""
+			id = str(uuid4())
 			print(os.path.join(rel_path, file))
-			file = File(id=id, type="file", path=os.path.join(rel_path, file), name=file)
+			type = vfy.get_type(file)
+			file = File(id=id, type=type, path=os.path.join(rel_path, file), name=file)
 			db.session.add(file)
 		for dir in dirs:
+			count += 1
 			id = str(uuid4())
 			rel_path = os.path.relpath(path, root)
 			if rel_path == ".":
@@ -31,18 +38,10 @@ def populate_db():
 	
 	db.session.commit()
 	print("done")
+	print(count)
 
 
-def string_search_db():
-	start_time = time.time()
-	q = "all the stars"#
-	search = "%{}%".format(q)
-	fls = []
-	files = File.query.filter(File.name.like(search)).all()
-	for file in files:
-		fls.append(file.name)
-	print(fls)
-	print(f"---------{time.time() - start_time} seconds--------")
+
 
 
 
@@ -54,6 +53,8 @@ def update_db():
 	root = ROOT_FOLDER
 	for path, dirs, files in os.walk(root):
 		for dir in dirs:
+			if vfy.ignore(dir) == 0:
+				continue
 			print(dir)
 			rp = os.path.relpath(path, root)
 			if rp == ".":
@@ -66,16 +67,17 @@ def update_db():
 				db.session.add(new_file)
 				print(f"added {dir}")
 		for file in files:
-
+			if vfy.ignore(file) == 0:
+				continue
 			rp = os.path.relpath(path, root)
 			if rp == ".":
 				rp = ""
 			rel_path = os.path.join(rp, file)
-
 			fls = File.query.filter_by(path=rel_path, name=file).first()
 			if bool(fls) == False:
+				type = vfy.get_type(file)
 				id = str(uuid4())
-				new_file = File(id=id, type="file", path=rel_path, name=file)
+				new_file = File(id=id, type=type, path=rel_path, name=file)
 				db.session.add(new_file)
 				print(f"added {file}")
 		
@@ -137,7 +139,7 @@ def get_contents(directory, limit: int, offset: int): #relative path
 	print("directory", directory)
 	total = 0
 	for x in os.listdir(os.path.join(root, directory)):
-		if ignore.check(x) == 0:
+		if vfy.ignore(x) == 0:
 			continue
 		abs_path = os.path.join(root, directory, x)
 		rel_path = os.path.relpath(abs_path, root)
@@ -145,11 +147,7 @@ def get_contents(directory, limit: int, offset: int): #relative path
 		if os.path.isdir(abs_path):
 			type = "directory"
 		else:
-			if x.endswith(".mp3"):
-				type = "mp3"
-			else:
-				type = "file"
-				
+			type = vfy.get_type(x)	
 		content_obj = {"name": x, "type": type}
 
 		
@@ -158,15 +156,6 @@ def get_contents(directory, limit: int, offset: int): #relative path
 
 	print(f"------{start_time-time.time()} seconds------")
 	return contents[offset:limit+offset], total
-
-def test():
-	start_time = time.time()
-	ids = ["35c663a5-30e5-47e3-8336-cdc8accbc575", "23282ea7-e561-454a-8bd1-f266c3007fb3", "7a7ea9aa-abdc-4b9f-8587-a4841f27bf0a"]
-	for id in ids:
-		file = File.query.filter_by(id=id).first()
-		print(file.name)
-	
-	print(f"------{start_time-time.time()} seconds------")
 
 
 def get_abs_path(rel_path):
