@@ -2,14 +2,17 @@ import os
 import pathlib
 import time
 
+
 def ignore(name):
 	if name == ".DS_Store":
-		return 0
+		return True
 
-def get_type(name):
+def get_type(path):
 	support = [".mp3", ".mp4", ".mov", ".wav"]
-	suffix = pathlib.Path(name).suffix
-	if suffix == "":
+	suffix = pathlib.Path(path).suffix
+	path = os.path.join("/Users/sidrachabathuni", path)
+	print(path, os.path.isdir(path))
+	if os.path.isdir(path) == True:
 		return "directory"
 	elif suffix in support:
 		return "media"

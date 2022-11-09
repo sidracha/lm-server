@@ -139,23 +139,23 @@ def get_contents(directory, limit: int, offset: int): #relative path
 	print("directory", directory)
 	total = 0
 	for x in os.listdir(os.path.join(root, directory)):
-		if vfy.ignore(x) == 0:
+		if vfy.ignore(x) == True:
 			continue
-		abs_path = os.path.join(root, directory, x)
-		rel_path = os.path.relpath(abs_path, root)
-
-		if os.path.isdir(abs_path):
-			type = "directory"
-		else:
-			type = vfy.get_type(x)	
-		content_obj = {"name": x, "type": type}
-
-		
-		contents.append(content_obj)
+		contents.append(x)
 		total += 1
 
+	contents.sort()
+	result = []
+	for v in contents:
+		abs_path = os.path.join(root, directory, v)
+		rel_path = os.path.relpath(abs_path, root)
+		type = vfy.get_type(rel_path)
+		temp_obj = {"name": v, "type": type}
+		result.append(temp_obj)
+
 	print(f"------{start_time-time.time()} seconds------")
-	return contents[offset:limit+offset], total
+	
+	return result[offset:limit+offset], total
 
 
 def get_abs_path(rel_path):

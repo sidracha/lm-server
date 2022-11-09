@@ -13,7 +13,6 @@ var index = {
 	last_page: 0,
 
 
-
 	parse_file_name: function (path) {
         const x = path.lastIndexOf('/');
         const name = path.substring(x+1, path.length);
@@ -51,12 +50,13 @@ var index = {
 				count++;
 			}
 			index.count = count;
-			index.modify_page_num(index.cur_page, index.last_page)
+			index.modify_page_num(index.cur_page, index.last_page);
 		})
 	},
 
 	on_initial: function () {
 		this.get_and_display("", 0);
+		this.modify_path("")
 	},
 
 
@@ -129,10 +129,12 @@ var index = {
 	handle_back_button_click: function () {
 		$("#back-button")[0].onclick = function (e) {
 			const cur_path = index.cur_path;
+			index.cur_page = 1;
 			const path = cur_path.substring(0, cur_path.lastIndexOf("/"));
-			const folder = index.parse_file_name(cur_path);
+			//const folder = index.parse_file_name(cur_path);
 			index.get_and_display(path, 0);
 			index.cur_path = path;
+			index.modify_path(index.cur_path);
 		}
 		
 	},
@@ -179,8 +181,10 @@ var index = {
 			const target = e.target;
 			if (target.getAttribute("content-type") === "directory") {
 				const path = encodeURIComponent(index.path_join([index.cur_path, target.name]));
+				index.cur_page = 1;
 				index.get_and_display(path, 0);
 				index.cur_path = index.path_join([index.cur_path, target.name]);
+				index.modify_path(index.cur_path);
 			}
 			if (target.role === "button") {
 				
@@ -213,5 +217,12 @@ var index = {
 				$("#music-player-div").attr("hidden", "true")
 			}
 		}
+	},
+
+	modify_path: function (path) {
+		if (path === "") {
+			path = "/"
+		}
+		$("#path").html(path)
 	}
 }

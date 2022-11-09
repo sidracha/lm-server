@@ -48,14 +48,15 @@ def fuzzy_search_files(q):
 	return fls, time.time()-start_time
 
 
-def search(q):
-	q = "%{}%".format(q)
+def search(q: str):
+	q = "%{}%".format(q.lower())
 	start_time = time.time()
 	fls = []
 	files = File.query.filter(File.name.like(q)).all()
 	for file in files:
 		fls.append(file.path)
 	vfy.print_time(start_time)
+
 	return fls, time.time() - start_time
 
 
@@ -63,12 +64,13 @@ def search_files(q):
 	root = ROOT_FOLDER
 	fls = []
 	start_time = time.time()
+	q = q.lower()
 	for path, dirs, files in os.walk(root):
 		for file in files:
-			if q in file:
+			if q in file.lower():
 				fls.append(os.path.join(path, file))
 		for dir in dirs:
-			if q in dir:
+			if q in dir.lower():
 				fls.append(os.path.join(path, dir))
 
 	vfy.print_time(start_time)
