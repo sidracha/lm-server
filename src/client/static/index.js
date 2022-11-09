@@ -188,7 +188,7 @@ var index = {
 			}
 			if (target.role === "button") {
 				
-				const path = "/mp3?path=" + encodeURIComponent(e.target.getAttribute("data-id"));
+				const path = "/media?path=" + encodeURIComponent(e.target.getAttribute("data-id"));
 				/*
 				
 				*/
@@ -201,6 +201,13 @@ var index = {
 						$("#audio-name").html(index.parse_file_name(e.target.getAttribute("data-id")));
 						$("#mp3-audio")[0].play()
 					}
+
+					if (suffix[0] === "mp4") {
+						$("#video-player-div").removeAttr("hidden");
+						$("#mp4-video").attr("src", path);
+						$("#mp4-video")[0].play();
+						$("#video-name").html(index.parse_file_name(e.target.getAttribute("data-id")));
+					}
 				}
 				if (target.getAttribute("content-type") === "directory") {
 
@@ -212,9 +219,19 @@ var index = {
 	handle_music_player_div_click: function () {
 		$("#music-player-div")[0].onclick = function (e) {
 			const target = e.target;
-			if (target.id === "close-player-button") {
+			if (target.id === "close-music-player-button") {
 				$("#mp3-audio")[0].pause()
 				$("#music-player-div").attr("hidden", "true")
+			}
+		}
+	},
+
+	handle_video_player_div_click: function () {
+		$("#video-player-div")[0].onclick = function (e) {
+			const target = e.target;
+			if (target.id === "close-video-player-button") {
+				$("#mp4-video")[0].pause();
+				$("#video-player-div").attr("hidden", "true");
 			}
 		}
 	},

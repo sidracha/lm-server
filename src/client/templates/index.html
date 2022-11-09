@@ -18,6 +18,7 @@
 				index.handle_previous_page_button_click();
 				index.handle_contents_div_click();
 				index.handle_music_player_div_click();
+				index.handle_video_player_div_click();
 			})
 
 		</script>
@@ -44,12 +45,17 @@
 				<audio id="mp3-audio" controls>
 					<source src="" type="audio/mpeg">
 				</audio>
-				<input role="button" src="https://static.thenounproject.com/png/1600389-200.png" id="close-player-button" type="image">
+				<input role="button" src="https://static.thenounproject.com/png/1600389-200.png" id="close-music-player-button" type="image" class="close-button">
 			</div>
-	
-			<video controls hidden>
-				<source src="/dvr" type="video/dvr">
-			</video>
+			
+			<div id="video-player-div" hidden>
+				<p id="video-name"></p>
+				<video id="mp4-video" controls>
+					<source src="" type="video/mp4">
+				</video>
+				<input role="button" src="https://static.thenounproject.com/png/1600389-200.png" id="close-video-player-button" type="image" class="close-button">
+			</div>
+			
 	
 			<div id="contents-div">
 	

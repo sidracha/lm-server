@@ -1,4 +1,6 @@
 venv
+..env.un~
+.env~
 src/server/instance
 files.sqlite3
 **/__pycache__/

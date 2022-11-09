@@ -7,11 +7,19 @@ from .models import db, File
 from . import vfy
 
 #ROOT_FOLDER = os.getenv("ROOT_FOLDER")
-ROOT_FOLDER = "/Users/sidrachabathuni/"
+ROOT_FOLDER = "E:\Videos"
 
 
 def populate_db():
 	root = ROOT_FOLDER
+	print(root)
+	for path, dirs, files in os.walk(root):
+		for dir in dirs:
+			print(path, dir)
+		for file in files:
+			print(path, file)
+
+	return
 	count = 0
 	for path, dirs, files in os.walk(root):
 		for file in files:
@@ -130,6 +138,22 @@ def get_mp3_under_dir(directory): #directory is relative path
 
 
 def get_contents(directory, limit: int, offset: int): #relative path
+	root = ROOT_FOLDER
+	print("here")
+	if len(directory) != 0:
+		if directory[0] == "/":
+			directory = directory[1:]
+	contents = []
+	total = 0
+	directory = os.path.join(root, directory)
+	for x in os.listdir(directory):
+		type =  vfy.get_type(os.path.join(directory, x))
+		temp_obj = {"name": x, "type": type}
+		contents.append(temp_obj)
+		total += 1
+	return contents[offset:limit+offset], total
+
+	return [1], 1
 	if len(directory) != 0:
 		if directory[0] == "/":
 			directory = directory[1:]
@@ -149,7 +173,9 @@ def get_contents(directory, limit: int, offset: int): #relative path
 	for v in contents:
 		abs_path = os.path.join(root, directory, v)
 		rel_path = os.path.relpath(abs_path, root)
+
 		type = vfy.get_type(rel_path)
+		print(rel_path)
 		temp_obj = {"name": v, "type": type}
 		result.append(temp_obj)
 

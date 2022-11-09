@@ -31,7 +31,7 @@ def handle_sub():
 	return jsonify({"contents": contents, "total": total})
 
 #test_path = "/Users/sidrachabathuni/Projects/lm-server/songs/english/britney/Britney Spears - Toxic (Official HD Video).mp3"
-@app.route("/mp3")
+@app.route("/media")
 def handle_mp3():
 	args = request.args
 	path = args["path"]
