@@ -4,7 +4,7 @@ import time
 import os
 from thefuzz import fuzz, process
 
-from .files import ROOT_FOLDER
+from .disk import ROOT_FOLDER
 
 def fuzzy_search(q): #very expensive? 
 	start_time = time.time()

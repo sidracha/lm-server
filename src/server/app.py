@@ -13,7 +13,7 @@ with app.app_context():
 from cli.db_cli import db_bp
 app.register_blueprint(db_bp)
 
-from main import files
+from main import disk
 from main import search
 
 @app.route("/")
@@ -24,23 +24,19 @@ def handle_home():
 @app.route("/sub")
 def handle_sub():
 	args = request.args
-	path = args["path"]
-	if path == "/":
-		path = ""
-	contents, total = files.get_contents(path, int(args["limit"]), int(args["offset"]))
+	id, limit, offset = args["id"], int(args["limit"]), int(args["offset"])
+	contents, total  = disk.get_contents(id, limit, offset)
 	return jsonify({"contents": contents, "total": total})
 
 #test_path = "/Users/sidrachabathuni/Projects/lm-server/songs/english/britney/Britney Spears - Toxic (Official HD Video).mp3"
-@app.route("/media")
-def handle_mp3():
-	args = request.args
-	path = args["path"]
-	abs_path = files.get_abs_path(path)
-	return send_file(abs_path)
+@app.route("/media/<id>")
+def handle_media(id):
+	file = disk.get_media_file(id)
+	return file
 
 @app.route("/test")
 def handle_test():
-	files.test()
+	disk.test()
 	return "done"
 
 @app.route("/search")

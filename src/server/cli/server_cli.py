@@ -1,6 +1,6 @@
 from flask import Blueprint
 
-from main import files
+from main import disk
 
 server_bp = Blueprint("server", __name__)
 

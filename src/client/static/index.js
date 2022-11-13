@@ -1,6 +1,5 @@
 var index = {
 
-	cur_path: "",
 	folder_img_src: "/icon/folder",
 	cd_img_src: "/icon/cd",
 	play_img_src: "/icon/play",
@@ -11,13 +10,9 @@ var index = {
 	cur_page: 1,
 	total: 0,
 	last_page: 0,
+	cur_id: "root",
+	prev_ids: [],
 
-
-	parse_file_name: function (path) {
-        const x = path.lastIndexOf('/');
-        const name = path.substring(x+1, path.length);
-        return name;
-	},
 
 	path_join: function (parts, sep){
 		const separator = sep || '/';
@@ -33,35 +28,30 @@ var index = {
 		return parts.join(separator);
 	},
 
-	get_and_display: function (path, offset) {
-		//console.log(path);
+	get_and_display: function (id, offset) {
 		$.ajax({
-			url: "/sub?path=" + path + "&limit=" + index.limit + "&offset=" + offset,
+			url: "/sub?id=" + id + "&limit=" + index.limit + "&offset=" + offset,
 			method: "GET",
 		}).done(function(resp) {
-			index.total = resp.total
-			index.last_page = Math.ceil(resp.total/index.limit)
-			$(".anchor-element-div").remove()
-			let count = 0
+			$(".anchor-element-div").remove();
+			index.total = resp.total;
+			index.last_page = Math.ceil(resp.total/index.limit);
 			for (item of resp.contents) {
-				//console.log(item)
-				const anchor_element = index.create_anchor_element(item.name, item.type);
+				const anchor_element = index.create_anchor_element(item.name, item.type, item.id);
 				anchor_element.prependTo($("#contents-div"));
-				count++;
 			}
-			index.count = count;
 			index.modify_page_num(index.cur_page, index.last_page);
 		})
 	},
 
 	on_initial: function () {
-		this.get_and_display("", 0);
+		this.get_and_display("root", 0);
 		this.modify_path("")
 	},
 
 
 
-	create_anchor_element: function (name, type) {
+	create_anchor_element: function (name, type, id) {
 		const anchor_element = $("<div>", {
 			class: "anchor-element-div"
 		})
@@ -71,7 +61,8 @@ var index = {
 			class: "content-anchor",
 			"href": "javascript: void(0)",
 			"content-type": type,
-			group: type + "-anchor"
+			group: type + "-anchor",
+			"data-id": id
 		})
 
 		let source;
@@ -89,15 +80,7 @@ var index = {
 			class: "type-icon"
 		})
 
-		let group;
-		if (type === "directory") {
-			group = "directory-play-button"
-		} 
-		else if (type === "media") {
-			group = "media-play-button"
-		} else {
 
-		}
 		if (type === "directory") {
 			source = index.shuffle_img_src;
 		} else {
@@ -108,9 +91,9 @@ var index = {
 			type: "image",
 			src: source,
 			class: "play-button",
-			"data-id": index.path_join([index.cur_path, name]),
+			"data-id": id,
 			"content-type": type,
-			group: group
+			"name": name
 		})
 
 		anchor.html(name);
@@ -128,32 +111,32 @@ var index = {
 
 	handle_back_button_click: function () {
 		$("#back-button")[0].onclick = function (e) {
-			const cur_path = index.cur_path;
-			index.cur_page = 1;
-			const path = cur_path.substring(0, cur_path.lastIndexOf("/"));
-			//const folder = index.parse_file_name(cur_path);
-			index.get_and_display(path, 0);
-			index.cur_path = path;
-			index.modify_path(index.cur_path);
+			if (index.prev_ids.length === 0) {
+				return;
+			}
+			const id = index.prev_ids.pop();
+			console.log(index.prev_ids);
+			index.go_to_page(id, 1);
+			index.cur_id = id;
+			const path = $("#path").html();
+			index.modify_path(path.substring(0, path.lastIndexOf("/")))
 		}
 		
 	},
 
-	go_to_page: function (page) {
+	go_to_page: function (id, page) {
 		const offset = (page-1) * index.limit;
-		this.get_and_display(this.cur_path, offset)
-
+		this.get_and_display(id, offset)
+		index.cur_page = page
 	},
 
 	handle_next_page_button_click: function () {
 		$("#next-page-button")[0].onclick = function () {
 			const last_page = Math.ceil(index.total/index.limit);
-			index.max_page = last_page
 			if (index.cur_page === last_page) {
 				return;
 			}
-			index.cur_page += 1;
-			index.go_to_page(index.cur_page);
+			index.go_to_page(index.cur_id, index.cur_page+1);
 			
 		}
 		
@@ -164,8 +147,8 @@ var index = {
 			if (index.cur_page === 1) {
 				return;
 			}
-			index.cur_page -= 1;
-			index.go_to_page(index.cur_page);
+
+			index.go_to_page(index.cur_id, index.cur_page-1);
 			
 		}
 	
@@ -179,39 +162,40 @@ var index = {
 	handle_contents_div_click: function () {
 		$("#contents-div")[0].onclick = function (e) {
 			const target = e.target;
+
 			if (target.getAttribute("content-type") === "directory") {
-				const path = encodeURIComponent(index.path_join([index.cur_path, target.name]));
-				index.cur_page = 1;
-				index.get_and_display(path, 0);
-				index.cur_path = index.path_join([index.cur_path, target.name]);
-				index.modify_path(index.cur_path);
+				const id = target.getAttribute("data-id");
+				index.prev_ids.push(index.cur_id)
+				index.cur_id = id;
+				index.go_to_page(id, 1);
+				const path = index.path_join([$("#path").html(), target.getAttribute("name")]);
+				index.modify_path(path);
 			}
 			if (target.role === "button") {
 				
-				const path = "/media?path=" + encodeURIComponent(e.target.getAttribute("data-id"));
-				/*
-				
-				*/
+				const id = target.getAttribute("data-id")
+				const name = target.getAttribute("name")
 
 				if (target.getAttribute("content-type") === "media") {
-					const suffix = /[^.]+$/.exec(path);
-					if (suffix[0] === "mp3") {
+
+					const suffix = /[^.]+$/.exec(name);
+					const source = "/media/" + id
+
+ 					if (suffix[0] === "mp3") {
 						$("#music-player-div").removeAttr("hidden");
-						$("#mp3-audio").attr("src", path);
-						$("#audio-name").html(index.parse_file_name(e.target.getAttribute("data-id")));
+						$("#mp3-audio").attr("src", source);
+						$("#audio-name").html(name);
 						$("#mp3-audio")[0].play()
 					}
 
 					if (suffix[0] === "mp4") {
 						$("#video-player-div").removeAttr("hidden");
-						$("#mp4-video").attr("src", path);
+						$("#mp4-video").attr("src", source);
 						$("#mp4-video")[0].play();
-						$("#video-name").html(index.parse_file_name(e.target.getAttribute("data-id")));
+						$("#video-name").html(name);
 					}
 				}
-				if (target.getAttribute("content-type") === "directory") {
 
-				}
 			}
 		}
 	},
@@ -238,7 +222,8 @@ var index = {
 
 	modify_path: function (path) {
 		if (path === "") {
-			path = "/"
+			$("#path").html("/");
+			return;
 		}
 		$("#path").html(path)
 	}
