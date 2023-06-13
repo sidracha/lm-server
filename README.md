@@ -1,2 +1,2 @@
 # lm-server
-small app to listen to local music files
+app to browse media files on filesystem in broswer
